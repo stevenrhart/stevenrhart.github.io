@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>python on </title>
-    <link>https://stevenrhart.github.io/categories/python/</link>
-    <description>Recent content in python on </description>
+    <title>bokeh on </title>
+    <link>https://stevenrhart.github.io/tags/bokeh/</link>
+    <description>Recent content in bokeh on </description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>© {year} Steve Hart</copyright>
     <lastBuildDate>Mon, 01 Jun 2020 00:00:00 +0000</lastBuildDate>
     
-	<atom:link href="https://stevenrhart.github.io/categories/python/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://stevenrhart.github.io/tags/bokeh/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>

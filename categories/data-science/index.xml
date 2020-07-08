@@ -2,24 +2,24 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>data-science on </title>
-    <link>https://example.org/categories/data-science/</link>
+    <link>https://stevenrhart.github.io/categories/data-science/</link>
     <description>Recent content in data-science on </description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <copyright>© {year}</copyright>
-    <lastBuildDate>Mon, 06 Jul 2020 00:00:00 +0000</lastBuildDate>
+    <copyright>© {year} Steve Hart</copyright>
+    <lastBuildDate>Mon, 01 Jun 2020 00:00:00 +0000</lastBuildDate>
     
-	<atom:link href="https://example.org/categories/data-science/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://stevenrhart.github.io/categories/data-science/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
-      <title>Test</title>
-      <link>https://example.org/blog/test/</link>
-      <pubDate>Mon, 06 Jul 2020 00:00:00 +0000</pubDate>
+      <title>Exploring US Name Popularity, 1880-2018</title>
+      <link>https://stevenrhart.github.io/blog/names/</link>
+      <pubDate>Mon, 01 Jun 2020 00:00:00 +0000</pubDate>
       
-      <guid>https://example.org/blog/test/</guid>
-      <description>Test notebook This is a test notebook to see if I can embed the notebook into a Hugo site.
-import pandas as pd import numpy as np import matplotlib.pyplot as plt data = {&#39;apple&#39;: 10, &#39;orange&#39;: 15, &#39;lemon&#39;: 5, &#39;lime&#39;: 20} names = list(data.keys()) values = list(data.values()) fig, axs = plt.subplots(1, 3, figsize=(9, 3), sharey=True) axs[0].bar(names, values) axs[1].scatter(names, values) axs[2].plot(names, values) fig.suptitle(&#39;Categorical Plotting&#39;)  Text(0.5, 0.98, &#39;Categorical Plotting&#39;)  Second H2 This is another section of my test post showing how it will render in the hugo site.</description>
+      <guid>https://stevenrhart.github.io/blog/names/</guid>
+      <description>Overview The focus of this project is to utilize data from the U.S. Social Security Adminisration to get some hands on practice using Pandas, Numpy and Bokeh while exploring first name popularity over the past 140 years.
+The Data The data set comes coutesy of the SSA is split up into one file per year spanning 1880-2018 (you can read more about it and access it here). Each file includes the relative frequency of first names for U.</description>
     </item>
     
   </channel>

@@ -1,0 +1,2264 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+<head>
+  <title>Exploring US Name Popularity, 1880-2018 | </title>
+
+  <meta charset="UTF-8">
+  <meta name="language" content="en">
+  <meta name="description" content="">
+  <meta name="keywords" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+  
+  
+
+  <link rel="shortcut icon" type="image/png" href="/favicon.ico" />
+
+  
+  
+    
+ 
+  
+  
+  
+  
+  
+  
+    
+    <link rel="stylesheet" href="/css/post.min.5a526cd8efe81629db604a51561b436a387bff3b12202a9322500941fd58eb59.css" integrity="sha256-WlJs2O/oFinbYEpRVhtDajh7/zsSICqTIlAJQf1Y61k="/>
+  
+    
+    <link rel="stylesheet" href="/css/custom.min.8f8faa6a8f02684a615f5f0ebf71b96dad82df21fa10141445f63a21b1debd58.css" integrity="sha256-j4&#43;qao8CaEphX18Ov3G5ba2C3yH6EBQURfY6IbHevVg="/>
+  
+  
+   
+   
+    
+
+<script type="application/ld+json">
+  
+    {
+      "@context" : "http://schema.org",
+      "@type" : "BlogPosting",
+      "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "https:\/\/stevenrhart.github.io"
+      },
+      "articleSection" : "blog",
+      "name" : "Exploring US Name Popularity, 1880-2018",
+      "headline" : "Exploring US Name Popularity, 1880-2018",
+      "description" : "",
+      "inLanguage" : "en-US",
+      "author" : "",
+      "creator" : "",
+      "publisher": "",
+      "accountablePerson" : "",
+      "copyrightHolder" : "",
+      "copyrightYear" : "2020",
+      "datePublished": "2020-06-01 00:00:00 \u002b0000 UTC",
+      "dateModified" : "2020-06-01 00:00:00 \u002b0000 UTC",
+      "url" : "https:\/\/stevenrhart.github.io\/blog\/names\/",
+      "wordCount" : "4601",
+      "keywords" : ["Blog"]
+    }
+  
+  </script>
+</head>
+
+<body>
+  <div class="burger__container">
+  <div class="burger" aria-controls="navigation" aria-label="Menu">
+    <div class="burger__meat burger__meat--1"></div>
+    <div class="burger__meat burger__meat--2"></div>
+    <div class="burger__meat burger__meat--3"></div>
+  </div>
+</div>
+ 
+
+  <nav class="nav" role="navigation">
+  <ul class="nav__list">
+    
+    
+      <li>
+        <a  href="/about">about</a>
+      </li>
+    
+      <li>
+        <a  class="active"
+         href="/blog">blog</a>
+      </li>
+    
+      <li>
+        <a  href="/">home</a>
+      </li>
+    
+  </ul>
+</nav>
+
+
+  <main>
+    
+    
+
+    <div class="flex-wrapper">
+      <div class="post__container">
+        <div class="post">
+          <header class="post__header">
+            <h1 id="post__title">Exploring US Name Popularity, 1880-2018</h1>
+            <time datetime="2020-06-01 00:00:00 &#43;0000 UTC" class="post__date"
+            >Jun 1 2020</time>
+          </header>
+          <article class="post__content">
+              
+<h2 id="overview">Overview<a class="anchor" href="#overview">#</a></h2>
+<p>The focus of this project is to utilize data from the U.S. Social Security Adminisration to get some hands on practice using Pandas, Numpy and Bokeh while exploring first name popularity over the past 140 years.</p>
+<h3 id="the-data">The Data<a class="anchor" href="#the-data">#</a></h3>
+<p>The data set comes coutesy of the SSA is split up into one file per year spanning 1880-2018 (you can read more about it and access it <a href="https://catalog.data.gov/dataset/baby-names-from-social-security-card-applications-national-level-data">here</a>). Each file includes the relative frequency of first names for U.S. births over the specified time frame. Each data file includes a list of records in the format of &ldquo;name,sex,number,&rdquo; with the &ldquo;number&rdquo; corresponding to the number of occurences of the name &amp; gender combination for the given year. The data is formatted nicely (sorted by sex, then count), so there isn&rsquo;t really much cleaning to do and there shouldn&rsquo;t be any missing values. Here&rsquo;s a quick sample from the first file:</p>
+<pre><code>Mary,F,7065
+Anna,F,2604
+Emma,F,2003
+...
+</code></pre>
+<p>You may be wondering&hellip; is this an exhaustive set of names over that time period? In short, the answer is &lsquo;No&rsquo;. For starters, names with fewer than 5 occurrences for a given year are excluded from the list to protect privacy. In addition, only names that are between 2-15 characters are included and sorry Prince&hellip; symbols are not allowed. (And yes, I do know Prince&rsquo;s birth name is Prince Rogers Nelson, so cool your jets people.)</p>
+<p>If you are interested in more background info, try these pages out:</p>
+<ul>
+<li>Background - <a href="https://www.ssa.gov/oact/babynames/background.html">https://www.ssa.gov/oact/babynames/background.html</a></li>
+<li>Main Baby Names Page for SSA - <a href="https://www.ssa.gov/oact/babynames/index.html">https://www.ssa.gov/oact/babynames/index.html</a> (includes some nice interactive functionality to play with the data (limited to the top 1000 names for each year)</li>
+</ul>
+<h3 id="exploratory-questions">Exploratory Questions<a class="anchor" href="#exploratory-questions">#</a></h3>
+<p>In this notebook, I&rsquo;ll primarily be using Pandas and Numpy for data manipulation and analysis and Bokeh for visualizations. Starting out, I&rsquo;m seeking to answer the following questions:</p>
+<ol>
+<li>What are the most popular names of all time - overall and split by gender? And which names are popular for both males and females (i.e., gender neutral names)?</li>
+<li>What&rsquo;s the most popular male and female name for each decade?</li>
+<li>Which names consistently rank the highest? And how does this compare to overall popularity?</li>
+<li>Which letters of the alphabet get the most love when it comes to first initials, overall and by decade?</li>
+</ol>
+<p>That seems like enough for now&hellip; we&rsquo;ll see if any other interesting ideas pop up along the way. To get started, we&rsquo;ll need to read in the data, so let&rsquo;s do that now.</p>
+<pre><code class="language-python">#hide
+# Import libraries
+import pandas as pd
+import numpy as np
+
+from bokeh.plotting import figure, show
+from bokeh.io import output_notebook, export_png
+from bokeh.palettes import Spectral6
+from bokeh.resources import INLINE
+#from bokeh.models import ColumnDataSource, HoverTool
+
+# Setup Bokeh to output directly to the notebook
+output_notebook(resources=INLINE, verbose=False, hide_banner=True, load_timeout=5000, notebook_type='jupyter')
+</code></pre>
+<h2 id="import-the-data">Import the Data<a class="anchor" href="#import-the-data">#</a></h2>
+<p>To start, let&rsquo;s import a single data file to see what we&rsquo;re working with. Based on the above, we know each data file only has 3 columns - <code>name</code>, <code>gender</code> and <code>number</code>. There are no headers in the data, so we&rsquo;ll have to create those as part of creating the dataframe.</p>
+<h3 id="create-the-initial-dataframe">Create the Initial Dataframe<a class="anchor" href="#create-the-initial-dataframe">#</a></h3>
+<pre><code class="language-python"># Create column headers and read in the first file for 1880
+cols = [&quot;name&quot;, &quot;gender&quot;, &quot;year_count&quot;]
+names = pd.read_csv(&quot;data/yob1880.txt&quot;, names=cols)
+
+# Preview what the data looks like
+print(names.shape)
+print(sum(names.year_count))
+names.head()
+</code></pre>
+<pre><code>(2000, 3)
+201484
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+<pre><code>.dataframe tbody tr th {
+    vertical-align: top;
+}
+
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
+<p></style></p>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>name</th>
+      <th>gender</th>
+      <th>year_count</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>Mary</td>
+      <td>F</td>
+      <td>7065</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>Anna</td>
+      <td>F</td>
+      <td>2604</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>Emma</td>
+      <td>F</td>
+      <td>2003</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>Elizabeth</td>
+      <td>F</td>
+      <td>1939</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>Minnie</td>
+      <td>F</td>
+      <td>1746</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<p>So in our initial file, we have 2000 total rows and our data looks as expected. In order to combine the files from all years into a single dataframe, we&rsquo;ll need to add a column for the year so we can keep things straight.</p>
+<pre><code class="language-python"># Add a new column for year
+year = 1880
+names['year'] = year
+names.head()
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+<pre><code>.dataframe tbody tr th {
+    vertical-align: top;
+}
+
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
+<p></style></p>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>name</th>
+      <th>gender</th>
+      <th>year_count</th>
+      <th>year</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>Mary</td>
+      <td>F</td>
+      <td>7065</td>
+      <td>1880</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>Anna</td>
+      <td>F</td>
+      <td>2604</td>
+      <td>1880</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>Emma</td>
+      <td>F</td>
+      <td>2003</td>
+      <td>1880</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>Elizabeth</td>
+      <td>F</td>
+      <td>1939</td>
+      <td>1880</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>Minnie</td>
+      <td>F</td>
+      <td>1746</td>
+      <td>1880</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<h3 id="read-in-the-rest-of-the-data">Read in the Rest of the Data<a class="anchor" href="#read-in-the-rest-of-the-data">#</a></h3>
+<p>Now that we have an initial dataframe ready to go, let&rsquo;s read in the rest of the files and add them to our dataset for analysis. We&rsquo;ll have to account for the new column for <code>year</code> as we go, which we can get from the file name itself.</p>
+<pre><code class="language-python"># Concatenate all remaining files into our dataframe
+
+# Set column headers
+cols = [&quot;name&quot;, &quot;gender&quot;, &quot;year_count&quot;]
+
+# Loop through files and append to dataframe (starting with 1881)
+for i in range(1881,2019,1):
+    filename = str(&quot;data/yob&quot; + str(i) + &quot;.txt&quot;)
+    temp_df = pd.read_csv(filename, names=cols)
+    temp_df[&quot;year&quot;] = i
+    names = pd.concat([names, temp_df], ignore_index=True) # Reset the index
+
+# Preview the shape of the updated dataframe
+print(names.shape)
+print(sum(names.year_count))
+names.tail()
+</code></pre>
+<pre><code>(1957046, 4)
+351653025
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+<pre><code>.dataframe tbody tr th {
+    vertical-align: top;
+}
+
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
+<p></style></p>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>name</th>
+      <th>gender</th>
+      <th>year_count</th>
+      <th>year</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1957041</th>
+      <td>Zylas</td>
+      <td>M</td>
+      <td>5</td>
+      <td>2018</td>
+    </tr>
+    <tr>
+      <th>1957042</th>
+      <td>Zyran</td>
+      <td>M</td>
+      <td>5</td>
+      <td>2018</td>
+    </tr>
+    <tr>
+      <th>1957043</th>
+      <td>Zyrie</td>
+      <td>M</td>
+      <td>5</td>
+      <td>2018</td>
+    </tr>
+    <tr>
+      <th>1957044</th>
+      <td>Zyron</td>
+      <td>M</td>
+      <td>5</td>
+      <td>2018</td>
+    </tr>
+    <tr>
+      <th>1957045</th>
+      <td>Zzyzx</td>
+      <td>M</td>
+      <td>5</td>
+      <td>2018</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<p>After combining all the files into one, we can see that we now have nearly <strong>2 million</strong> rows and a total count of over <strong>350 million</strong> which represents the number of unique names accounted for in the data. And that last name looks pretty interesting&hellip; <em><strong>Zzyzx</strong></em>. If you want to learn more (I did), you can take a look <a href="https://en.wikipedia.org/wiki/Zzyzx,_California">here</a>, or <a href="https://www.babynamewizard.com/baby-name/boy/zzyzx">here</a>. Moving on&hellip;</p>
+<h2 id="data-analysis">Data Analysis<a class="anchor" href="#data-analysis">#</a></h2>
+<p>Next, let&rsquo;s do some analysis on our data to answer some of those burning questions we listed out above. Keep in mind, this isn&rsquo;t an exhaustive record containing the names of <em><strong>every</strong></em> U.S. citizen from 1880-2018. That said, as we saw above, it does account for quite a few people. So it should be enough to help us spot some interesting trends.</p>
+<p>Let&rsquo;s start our analysis with some basics - things like gender split, most popular names (male, female, combined), etc. Before we do that though, let&rsquo;s do a quick check to ensure we don&rsquo;t have any missing values.</p>
+<h3 id="check-for-missing-values">Check for Missing Values<a class="anchor" href="#check-for-missing-values">#</a></h3>
+<pre><code class="language-python">names.isna().sum()
+</code></pre>
+<pre><code>name          0
+gender        0
+year_count    0
+year          0
+dtype: int64
+</code></pre>
+<p>OK, looks like we&rsquo;re good to move forward. Next, let&rsquo;s check out the gender split.</p>
+<h3 id="gender-split---total">Gender Split - Total<a class="anchor" href="#gender-split---total">#</a></h3>
+<p>First, let&rsquo;s look at the total gender split to see what that turns up. To do the work, we&rsquo;ll use the pivot_table function to get the view we&rsquo;re after - setting the index to <code>gender</code> and the values to <code>year_count</code>.</p>
+<pre><code class="language-python"># Determine the split between Males and Females in the data
+names.pivot_table(index=&quot;gender&quot;,values=[&quot;year_count&quot;],aggfunc=sum)
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+<pre><code>.dataframe tbody tr th {
+    vertical-align: top;
+}
+
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
+<p></style></p>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>year_count</th>
+    </tr>
+    <tr>
+      <th>gender</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>F</th>
+      <td>174079232</td>
+    </tr>
+    <tr>
+      <th>M</th>
+      <td>177573793</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<h3 id="gender-split---over-time">Gender Split - Over Time<a class="anchor" href="#gender-split---over-time">#</a></h3>
+<p>Looks like a pretty even split in the overall numbers. Before we move forward, let&rsquo;s take a look at the split between male and female records for each year to see if we can spot any trends over time.</p>
+<p>First though, let&rsquo;s create a helper function to assist with plotting.</p>
+<pre><code class="language-python"># Function to display a plot in Bokeh
+def createPlot(plot_type, title, x_values, y_values, x_label, y_label, colors,
+               filename, x_range=None, y_range=None, legend_labels=None, legend_location=None):
+    &quot;&quot;&quot;Creates and returns a line or vbar plot using bokeh as specified
+    &quot;&quot;&quot;
+    # Create the figure
+    output_notebook(resources=INLINE, verbose=False, hide_banner=True,
+                    load_timeout=5000, notebook_type='jupyter')
+    p = figure(plot_width=600, plot_height=400, toolbar_location=None, tools=&quot;&quot;)
+    p.background_fill_color = &quot;white&quot;
+    p.background_fill_alpha = 0.3
+
+    # Style the figure
+    p.title.text=title
+    p.title.text_color=&quot;black&quot;
+    p.title.text_font=&quot;helvetica&quot;
+    p.title.text_font_style=&quot;bold&quot;
+    p.xaxis.minor_tick_line_color=None
+    p.yaxis.minor_tick_line_color=None
+    p.xgrid.grid_line_color = None
+    p.xaxis.axis_label=x_label
+    p.xaxis.axis_label_text_color=&quot;gray&quot;
+    p.xaxis.axis_label_text_font=&quot;helvetica&quot;
+    p.xaxis.axis_label_text_font_style=&quot;normal&quot;
+    p.yaxis.axis_label=y_label
+    p.yaxis.axis_label_text_color=&quot;gray&quot;
+    p.yaxis.axis_label_text_font=&quot;helvetica&quot;
+    p.yaxis.axis_label_text_font_style=&quot;normal&quot;
+
+    if plot_type == 'line':
+        # Create a line for each set of y_values
+        for i in range(len(y_values)):
+            p.line(x_values, y_values[i], color=colors[i], line_width=2, alpha=0.8,
+                   legend_label=legend_labels[i])
+
+        # Add legend
+        p.legend.location = legend_location
+
+    elif plot_type == 'vbar':
+        # Configure axis range
+        p.x_range.start = x_range[0]
+        p.x_range.end = x_range[-1]
+        p.y_range.start = y_range[0]
+        p.y_range.end = y_range[1]
+
+        # Create a bar for each set of y_values
+        for i in range(len(y_values)):
+            p.vbar(x=x_values, top=y_values[i], width=0.6, color=colors[i], alpha=0.8)
+
+    # Export png and display plot
+    export_png(p, filename=filename)
+    show(p)
+</code></pre>
+<pre><code class="language-python"># Create list of distinct years for x values
+x_values = names['year'].unique().tolist()
+
+# Create y values as the sum of the count for each year, grouped by gender
+y_male = names[names['gender']=='M'].groupby(['year', 'gender']).year_count.sum() / 1000000
+y_female = names[names['gender']=='F'].groupby(['year', 'gender']).year_count.sum() / 1000000
+y_values = [y_male, y_female]
+
+# Assign other variables
+plot_type = 'line'
+title = &quot;Gender Split Over Time&quot;
+x_label = &quot;Year&quot;
+y_label = &quot;Count (millions)&quot;
+x_range = (1880, 2025)
+y_range = (0, 2.25)
+colors =  [&quot;cornflowerblue&quot;, &quot;indianred&quot;]
+filename = './figures/gender_split_line.png'
+legend_labels = [&quot;Male&quot;, &quot;Female&quot;]
+legend_location = &quot;top_left&quot;
+
+createPlot(plot_type, title, x_values, y_values, x_label, y_label, colors,
+               filename, x_range, y_range, legend_labels, legend_location)
+</code></pre>
+<p><img src="../figures/gender_split_line.png"
+alt="Line plot showing gender split over time, 1880-2018"/></p>
+<p>Interesting&hellip; the two lines mirror each other in terms of shape almost perfectly. We can also see that women outnumbered men for most of the first 60 years with the number of men then overtaking women starting around 1950.</p>
+<p>Let&rsquo;s take a look at the difference in gender numbers over time before we move on to name popularity. First, we&rsquo;ll create a series for the difference between male and female numbers of the years and then we&rsquo;ll plot it out.</p>
+<pre><code class="language-python"># Add a chart plotting the difference in men and women yoy
+
+# Calculate the difference for each year
+male_count = names[names['gender']=='M'].groupby(['year', 'gender']).year_count.sum()
+female_count = names[names['gender']=='F'].groupby(['year', 'gender']).year_count.sum()
+gender_gaps = []
+for i in range(len(male_count)):
+    gender_gap = (male_count[i] - female_count[i]) / 1000
+    gender_gaps.append(gender_gap)
+
+# Create lists of values for males and females relative to a difference of 0
+list_length = len(gender_gaps)
+more_males = [0] * list_length
+more_females = [0] * list_length
+
+for n in range(len(gender_gaps)):
+    if gender_gaps[n] &gt; 0:
+        more_males[n] = gender_gaps[n]
+    elif gender_gaps[n] &lt; 0:
+        more_females[n] = gender_gaps[n]
+    else:
+        continue
+
+# x values are the series of unique years
+x_values = names['year'].unique().tolist()
+
+# y values are the values for males and females relative to a difference of 0
+y_values = [more_males, more_females]
+
+# Assign other variables
+plot_type = 'vbar'
+title = &quot;Gender Difference Over Time&quot;
+x_label = &quot;Year&quot;
+y_label = &quot;Difference (thousands)&quot;
+colors =  [&quot;cornflowerblue&quot;, &quot;indianred&quot;]
+filename = './figures/gender_split_bar.png'
+x_range = (1880, 2025)
+y_range = (-225, 225)
+
+# Create plot using function
+createPlot(plot_type, title, x_values, y_values, x_label, y_label, colors, filename, x_range, y_range)
+</code></pre>
+<p><img src="../figures/gender_split_bar.png"
+alt="Bar plot showing gender split over time, 1880-2018"/></p>
+<p>The plot above provides a nice visual highlighting the difference in the number of social security number applications for males vs. females over time. It would be interesting to see if and how the trends above are reflected in <em>actual</em> birth statistics. For now we will leave this as a potential next step though and move on to look at name popularity</p>
+<h3 id="most-popular-names---overall">Most Popular Names - Overall<a class="anchor" href="#most-popular-names---overall">#</a></h3>
+<p>For name popularity, we&rsquo;ll first look at which names are most popular over time for each gender. We can use the <code>Pandas.pivot_table()</code> function again to achieve this result.</p>
+<pre><code class="language-python"># Create a pivot table view for the top 10 names based on total count
+names.pivot_table(index=[&quot;name&quot;, &quot;gender&quot;], values=&quot;year_count&quot;, aggfunc=sum).\
+                    sort_values(&quot;year_count&quot;, ascending=False).head(11).reset_index().shift()[1:]
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+<pre><code>.dataframe tbody tr th {
+    vertical-align: top;
+}
+
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
+<p></style></p>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>name</th>
+      <th>gender</th>
+      <th>year_count</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1</th>
+      <td>James</td>
+      <td>M</td>
+      <td>5164280.0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>John</td>
+      <td>M</td>
+      <td>5124817.0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>Robert</td>
+      <td>M</td>
+      <td>4820129.0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>Michael</td>
+      <td>M</td>
+      <td>4362731.0</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>Mary</td>
+      <td>F</td>
+      <td>4125675.0</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>William</td>
+      <td>M</td>
+      <td>4117369.0</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>David</td>
+      <td>M</td>
+      <td>3621322.0</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>Joseph</td>
+      <td>M</td>
+      <td>2613304.0</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>Richard</td>
+      <td>M</td>
+      <td>2565301.0</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>Charles</td>
+      <td>M</td>
+      <td>2392779.0</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<p>Looks like male names dominate the list of overall popularity (with the exception of Mary). Not sure exactly what that says about male names&hellip; maybe they tend to be more traditional, or maybe it&rsquo;s a more frequent occurence that male names are passed down between generations. In any case, we should split this out by gender next so we can see the separate lists.</p>
+<h3 id="most-popular-names---by-gender">Most Popular Names - By Gender<a class="anchor" href="#most-popular-names---by-gender">#</a></h3>
+<p>First, let&rsquo;s create a new dataframe to make this a bit easier. We can use <code>Pandas.copy()</code> to make a deep copy of our initial dataframe and then we can collapse the year_count for each name &amp; gender combo.</p>
+<pre><code class="language-python"># Create a copy of the dataframe, drop the year column &amp; rename year_count to total_count
+names_copy = names.copy(deep=True)
+names_copy = names_copy.drop(columns='year', axis=1)
+names_copy = names_copy.rename(columns={'name': 'name', 'gender': 'gender', 'year_count': 'total_count'})
+
+# Collapse the data by name and gender and sum up the year_count column
+names_copy = names_copy.groupby(['name', 'gender'], as_index=False)\
+            .agg({'total_count': 'sum'}).reindex(columns=names_copy.columns)
+</code></pre>
+<h4 id="top-10-male-names---all-time">Top 10 Male Names - All Time</h4>
+<pre><code class="language-python"># Filter the new dataframe by gender and sort by year_count
+# Top 10 male names based on total count
+names_copy[names_copy[&quot;gender&quot;]==&quot;M&quot;].sort_values(&quot;total_count&quot;, ascending=False,
+                                                  ignore_index=True).head(11).shift()[1:]
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+<pre><code>.dataframe tbody tr th {
+    vertical-align: top;
+}
+
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
+<p></style></p>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>name</th>
+      <th>gender</th>
+      <th>total_count</th>
+      <th>decade</th>
+      <th>letter</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1</th>
+      <td>James</td>
+      <td>M</td>
+      <td>5164280.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>John</td>
+      <td>M</td>
+      <td>5124817.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>Robert</td>
+      <td>M</td>
+      <td>4820129.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>Michael</td>
+      <td>M</td>
+      <td>4362731.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>William</td>
+      <td>M</td>
+      <td>4117369.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>David</td>
+      <td>M</td>
+      <td>3621322.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>Joseph</td>
+      <td>M</td>
+      <td>2613304.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>Richard</td>
+      <td>M</td>
+      <td>2565301.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>Charles</td>
+      <td>M</td>
+      <td>2392779.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>Thomas</td>
+      <td>M</td>
+      <td>2311849.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<h4 id="top-10-female-names---all-time">Top 10 Female Names - All Time</h4>
+<pre><code class="language-python"># Top 10 female names based on total count
+names_copy[names_copy[&quot;gender&quot;]==&quot;F&quot;].sort_values(&quot;total_count&quot;, ascending=False,
+                                                  ignore_index=True).head(11).shift()[1:]
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+<pre><code>.dataframe tbody tr th {
+    vertical-align: top;
+}
+
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
+<p></style></p>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>name</th>
+      <th>gender</th>
+      <th>total_count</th>
+      <th>decade</th>
+      <th>letter</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1</th>
+      <td>Mary</td>
+      <td>F</td>
+      <td>4125675.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>Elizabeth</td>
+      <td>F</td>
+      <td>1638349.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>Patricia</td>
+      <td>F</td>
+      <td>1572016.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>Jennifer</td>
+      <td>F</td>
+      <td>1467207.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>Linda</td>
+      <td>F</td>
+      <td>1452668.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>Barbara</td>
+      <td>F</td>
+      <td>1434397.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>Margaret</td>
+      <td>F</td>
+      <td>1248985.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>Susan</td>
+      <td>F</td>
+      <td>1121703.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>Dorothy</td>
+      <td>F</td>
+      <td>1107635.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>Sarah</td>
+      <td>F</td>
+      <td>1077746.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<h3 id="popular-gender-neutral-names">Popular Gender Neutral Names<a class="anchor" href="#popular-gender-neutral-names">#</a></h3>
+<p>There&rsquo;s nothing too surprising in the above lists. Let&rsquo;s dig a little deeper and see if we can figure out the most common gender neutral names. In other words, names that are relatively common for both males and females. We can start by looking at the total count for names that appear <em><strong>at least</strong></em> once for each gender and see what that looks like. I suspect it won&rsquo;t give us exactly what we&rsquo;re after, but let&rsquo;s give it a try.</p>
+<p>To do this analysis, first we&rsquo;ll isolate the list of unique names for each gender into separate Numpy ndarrays and then we&rsquo;ll use <code>Numpy.intersect1d()</code> to find the interesection of the two arrays. Once we have the intersection, we can use it to filter our dataframe to the gender neutral names</p>
+<pre><code class="language-python"># Isolate the unique male names &amp; view the total
+male_names = names_copy[names_copy['gender'] == 'M'].name.unique()
+print(&quot;Number of male names: &quot; + str(len(male_names)))
+
+# Isolate the unique female names &amp; view the total
+female_names = names_copy[names_copy['gender'] == 'F'].name.unique()
+print(&quot;Number of female names: &quot; + str(len(female_names)))
+
+# Find the intersection of the two arrays &amp; view the total
+gn_names = np.intersect1d(male_names, female_names)
+print(&quot;Number of gender neutral names: &quot; + str(len(gn_names)))
+</code></pre>
+<pre><code>Number of male names: 41475
+Number of female names: 67698
+Number of gender neutral names: 10773
+</code></pre>
+<pre><code class="language-python"># Top 10 gender neutral names based on total count
+names_copy[names_copy.name.isin(gn_names)]\
+    .pivot_table(index=&quot;name&quot;, values=&quot;total_count&quot;, aggfunc=sum).\
+    sort_values(&quot;total_count&quot;, ascending=False).reset_index().head(11).shift()[1:]
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+<pre><code>.dataframe tbody tr th {
+    vertical-align: top;
+}
+
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
+<p></style></p>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>name</th>
+      <th>total_count</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1</th>
+      <td>James</td>
+      <td>5187679.0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>John</td>
+      <td>5146508.0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>Robert</td>
+      <td>4840228.0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>Michael</td>
+      <td>4384463.0</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>Mary</td>
+      <td>4140840.0</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>William</td>
+      <td>4133327.0</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>David</td>
+      <td>3634229.0</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>Joseph</td>
+      <td>2623958.0</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>Richard</td>
+      <td>2574832.0</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>Charles</td>
+      <td>2405197.0</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<p>Clearly, this result is unexpected as none of the names in the above list is a common <em><strong>gender neutral</strong></em> name. In fact, if your keeping score at home, you&rsquo;ll notice this list looks suspiciously similar to the list of the most popular names overall. I suspect the result is skewed for names that have a disproportionately high number for one gender and a much smaller number for the other. We can confirm this to be the case by looking at the numbers for one of the names and checking the count for each gender.</p>
+<pre><code class="language-python"># Create a list of the top10 names from the list above
+top10_count = names_copy[names_copy.name.isin(gn_names)].\
+                            pivot_table(index=&quot;name&quot;, values=&quot;total_count&quot;, aggfunc=sum).\
+                            sort_values(&quot;total_count&quot;, ascending=False).head(10)
+top10_names = top10_count.index
+top10_names
+</code></pre>
+<pre><code>Index(['James', 'John', 'Robert', 'Michael', 'Mary', 'William', 'David',
+       'Joseph', 'Richard', 'Charles'],
+      dtype='object', name='name')
+</code></pre>
+<pre><code class="language-python"># Use the list to filter out the counts of these names for each gender
+names_copy[names_copy.name.isin(top10_names)]\
+    .pivot_table(index=[&quot;name&quot;,&quot;gender&quot;], values=&quot;total_count&quot;).\
+    sort_values([&quot;name&quot;,&quot;gender&quot;]).head(20)
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+<pre><code>.dataframe tbody tr th {
+    vertical-align: top;
+}
+
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
+<p></style></p>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th></th>
+      <th>total_count</th>
+    </tr>
+    <tr>
+      <th>name</th>
+      <th>gender</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th rowspan="2" valign="top">Charles</th>
+      <th>F</th>
+      <td>12418</td>
+    </tr>
+    <tr>
+      <th>M</th>
+      <td>2392779</td>
+    </tr>
+    <tr>
+      <th rowspan="2" valign="top">David</th>
+      <th>F</th>
+      <td>12907</td>
+    </tr>
+    <tr>
+      <th>M</th>
+      <td>3621322</td>
+    </tr>
+    <tr>
+      <th rowspan="2" valign="top">James</th>
+      <th>F</th>
+      <td>23399</td>
+    </tr>
+    <tr>
+      <th>M</th>
+      <td>5164280</td>
+    </tr>
+    <tr>
+      <th rowspan="2" valign="top">John</th>
+      <th>F</th>
+      <td>21691</td>
+    </tr>
+    <tr>
+      <th>M</th>
+      <td>5124817</td>
+    </tr>
+    <tr>
+      <th rowspan="2" valign="top">Joseph</th>
+      <th>F</th>
+      <td>10654</td>
+    </tr>
+    <tr>
+      <th>M</th>
+      <td>2613304</td>
+    </tr>
+    <tr>
+      <th rowspan="2" valign="top">Mary</th>
+      <th>F</th>
+      <td>4125675</td>
+    </tr>
+    <tr>
+      <th>M</th>
+      <td>15165</td>
+    </tr>
+    <tr>
+      <th rowspan="2" valign="top">Michael</th>
+      <th>F</th>
+      <td>21732</td>
+    </tr>
+    <tr>
+      <th>M</th>
+      <td>4362731</td>
+    </tr>
+    <tr>
+      <th rowspan="2" valign="top">Richard</th>
+      <th>F</th>
+      <td>9531</td>
+    </tr>
+    <tr>
+      <th>M</th>
+      <td>2565301</td>
+    </tr>
+    <tr>
+      <th rowspan="2" valign="top">Robert</th>
+      <th>F</th>
+      <td>20099</td>
+    </tr>
+    <tr>
+      <th>M</th>
+      <td>4820129</td>
+    </tr>
+    <tr>
+      <th rowspan="2" valign="top">William</th>
+      <th>F</th>
+      <td>15958</td>
+    </tr>
+    <tr>
+      <th>M</th>
+      <td>4117369</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<p>As suspected, each name in the list has a disproportionately high count for one gender and a fairly small count for the other. In order to find a more representative list, we&rsquo;ll have to do some more clean up. Let&rsquo;s start by creating a new df with the gender neutral names and then filtering it to a threshold count for each gender. Then, we can revisit the top 10 list to see if we get a different result.</p>
+<pre><code class="language-python"># Get count of rows before filtering
+print(&quot;Rows before: &quot; + str(names_copy.shape[0]))
+
+# Filter names_copy df down to only gender neutral names
+names_copy = names_copy[names_copy.name.isin(gn_names)]
+
+# Filter out rows below threshold
+threshold = 30000
+names_copy = names_copy[names_copy.total_count &gt; threshold]
+
+# Get the list of names where both M and F rows still exist
+seen = []
+gn_names = []
+for name in names_copy.name:
+    if name not in seen:
+        seen.append(name)
+    else:
+        gn_names.append(name)
+
+# Filter df to gn names
+names_copy = names_copy[names_copy.name.isin(gn_names)]
+
+# Get count of rows after filtering
+print(&quot;Rows after: &quot; + str(names_copy.shape[0]))
+</code></pre>
+<pre><code>Rows before: 109173
+Rows after: 70
+</code></pre>
+<pre><code class="language-python"># And now, pivot and display the top 10 based on total count
+names_copy.pivot_table(index=&quot;name&quot;, values=&quot;total_count&quot;, aggfunc=sum).\
+                       sort_values(&quot;total_count&quot;, ascending=False).reset_index().\
+                       head(11).shift()[1:]
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+<pre><code>.dataframe tbody tr th {
+    vertical-align: top;
+}
+
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
+<p></style></p>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>name</th>
+      <th>total_count</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1</th>
+      <td>Willie</td>
+      <td>595102.0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>Kelly</td>
+      <td>553154.0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>Terry</td>
+      <td>519811.0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>Jordan</td>
+      <td>505517.0</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>Taylor</td>
+      <td>430836.0</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>Alexis</td>
+      <td>401937.0</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>Leslie</td>
+      <td>379807.0</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>Jamie</td>
+      <td>353733.0</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>Shannon</td>
+      <td>347023.0</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>Shawn</td>
+      <td>335706.0</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<p>This looks a little bit more reasonable for a list of gender neutral names and we could always adjust the threshold to dial it in a bit more if necessary.</p>
+<h3 id="unique-names-per-year">Unique Names Per Year<a class="anchor" href="#unique-names-per-year">#</a></h3>
+<p>Before we move on to looking at name popularity by decade, let&rsquo;s take a quick diversion to look at the number of unique names per year. Are we getting more creative with names as the years go by, or are we staying roughly the same.</p>
+<p>To drill into this, first we&rsquo;ll need to isolate the list of unique names for each year and then plot the results.</p>
+<pre><code class="language-python"># Filter df down to name and year
+total_unique = names.loc[:, ('name', 'year')]
+
+# Add a new column to track overall count
+total_unique['count'] = 1
+
+# Group by year and sum the count of unique names in that year
+total_unique = total_unique.loc[:, ('year', 'count')].groupby(['year']).\
+                                agg({'count': 'sum'}).reset_index()
+</code></pre>
+<pre><code class="language-python"># Make the plot
+# Create list of distinct years for x values
+x_values = total_unique['year'].tolist()
+
+# Create y values as the sum of the count for each year, grouped by gender
+y_values = total_unique['count'].tolist()
+
+# Create remaining variables for plot
+plot_type = 'vbar'
+title = &quot;Unique First Names Per Year, 1880-2018&quot;
+x_label = &quot;Year&quot;
+y_label = &quot;Count&quot;
+filename = './figures/unique_names_by_year.png'
+colors = [&quot;gray&quot;]
+x_range = (1880, 2025)
+y_range = (0, 40000)
+
+# Create plot using function
+createPlot(plot_type, title, x_values, [y_values], x_label, y_label,
+           colors, filename, x_range, y_range)
+</code></pre>
+<p><img src="../figures/unique_names_by_year.png"
+alt="Bar plot showing unique names per year over time, 1880-2018"/></p>
+<p>Overall, it appears we are getting much more creative with our baby names over time. There is an interesting jump around 1920 and then a slight dropoff around 1930, but otherwise it looks to be a pretty steady trend upwards from 1880 until 2018. It&rsquo;s worth keeping in mind though that our data only includes names with a count of 5 or higher for the given year. So it&rsquo;s possible that the <em>actual</em> upward trajectory is even more dramatic if we assume a substantial increase in names falling into this category over time.</p>
+<h3 id="most-popular-names-by-decade">Most Popular Names by Decade<a class="anchor" href="#most-popular-names-by-decade">#</a></h3>
+<p>Next, let&rsquo;s take a look at the most popular male and female names by decade. In order to accomplish this, we&rsquo;ll work through the following steps:</p>
+<ol>
+<li>Create a function to generate the decade from the year for each row</li>
+<li>Apply the function to the df to populate the new &ldquo;decade&rdquo; column</li>
+<li>Collapse the data by decade to get the total count per decade for each name</li>
+<li>Clean up our interim df</li>
+<li>Filter the df by sorting on decade, gender &amp; decade count and displaying the max decade count for each grouping</li>
+</ol>
+<pre><code class="language-python"># Create function to return decade for a given year
+def decadeColumn(year):
+    &quot;&quot;&quot;Returns 4 digit decade when passed 4 digit year&quot;&quot;&quot;
+    year = str(year)
+    decade = int(year) - int(year[3])
+    return decade
+
+# Create new column for decade and populate with function
+names[&quot;decade&quot;] = names.year.apply(decadeColumn)
+
+# Collapse the data by decade, name and gender and sum up the year_count column
+decade_names = names.groupby(['decade', 'name', 'gender'], as_index=False)\
+            .agg({'year_count': 'sum'}).reindex(columns=names.columns)
+
+# Clean up df cols - drop, reorder, rename
+decade_names = decade_names.drop('year', axis=1)\
+    .reindex(columns=['decade', 'gender', 'name', 'year_count']).rename(columns={'year_count': 'decade_count'})
+
+# Filter the df to most popular male and female names by decade
+decade_popular_names = decade_names.sort_values(['decade','gender','decade_count'])\
+    .groupby(['decade','gender']).tail(1)
+decade_popular_names = decade_popular_names.reset_index(drop=True)
+decade_popular_names
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+<pre><code>.dataframe tbody tr th {
+    vertical-align: top;
+}
+
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
+<p></style></p>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>decade</th>
+      <th>gender</th>
+      <th>name</th>
+      <th>decade_count</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1880</td>
+      <td>F</td>
+      <td>Mary</td>
+      <td>91668</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1880</td>
+      <td>M</td>
+      <td>John</td>
+      <td>89950</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>1890</td>
+      <td>F</td>
+      <td>Mary</td>
+      <td>131136</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>1890</td>
+      <td>M</td>
+      <td>John</td>
+      <td>80665</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>1900</td>
+      <td>F</td>
+      <td>Mary</td>
+      <td>161505</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>1900</td>
+      <td>M</td>
+      <td>John</td>
+      <td>84593</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>1910</td>
+      <td>F</td>
+      <td>Mary</td>
+      <td>478639</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>1910</td>
+      <td>M</td>
+      <td>John</td>
+      <td>376318</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>1920</td>
+      <td>F</td>
+      <td>Mary</td>
+      <td>701754</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>1920</td>
+      <td>M</td>
+      <td>Robert</td>
+      <td>576364</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>1930</td>
+      <td>F</td>
+      <td>Mary</td>
+      <td>572956</td>
+    </tr>
+    <tr>
+      <th>11</th>
+      <td>1930</td>
+      <td>M</td>
+      <td>Robert</td>
+      <td>590734</td>
+    </tr>
+    <tr>
+      <th>12</th>
+      <td>1940</td>
+      <td>F</td>
+      <td>Mary</td>
+      <td>640031</td>
+    </tr>
+    <tr>
+      <th>13</th>
+      <td>1940</td>
+      <td>M</td>
+      <td>James</td>
+      <td>795680</td>
+    </tr>
+    <tr>
+      <th>14</th>
+      <td>1950</td>
+      <td>F</td>
+      <td>Mary</td>
+      <td>625568</td>
+    </tr>
+    <tr>
+      <th>15</th>
+      <td>1950</td>
+      <td>M</td>
+      <td>James</td>
+      <td>843531</td>
+    </tr>
+    <tr>
+      <th>16</th>
+      <td>1960</td>
+      <td>F</td>
+      <td>Lisa</td>
+      <td>496976</td>
+    </tr>
+    <tr>
+      <th>17</th>
+      <td>1960</td>
+      <td>M</td>
+      <td>Michael</td>
+      <td>833217</td>
+    </tr>
+    <tr>
+      <th>18</th>
+      <td>1970</td>
+      <td>F</td>
+      <td>Jennifer</td>
+      <td>581763</td>
+    </tr>
+    <tr>
+      <th>19</th>
+      <td>1970</td>
+      <td>M</td>
+      <td>Michael</td>
+      <td>707647</td>
+    </tr>
+    <tr>
+      <th>20</th>
+      <td>1980</td>
+      <td>F</td>
+      <td>Jessica</td>
+      <td>469487</td>
+    </tr>
+    <tr>
+      <th>21</th>
+      <td>1980</td>
+      <td>M</td>
+      <td>Michael</td>
+      <td>663742</td>
+    </tr>
+    <tr>
+      <th>22</th>
+      <td>1990</td>
+      <td>F</td>
+      <td>Jessica</td>
+      <td>303094</td>
+    </tr>
+    <tr>
+      <th>23</th>
+      <td>1990</td>
+      <td>M</td>
+      <td>Michael</td>
+      <td>462327</td>
+    </tr>
+    <tr>
+      <th>24</th>
+      <td>2000</td>
+      <td>F</td>
+      <td>Emily</td>
+      <td>223690</td>
+    </tr>
+    <tr>
+      <th>25</th>
+      <td>2000</td>
+      <td>M</td>
+      <td>Jacob</td>
+      <td>273844</td>
+    </tr>
+    <tr>
+      <th>26</th>
+      <td>2010</td>
+      <td>F</td>
+      <td>Emma</td>
+      <td>177410</td>
+    </tr>
+    <tr>
+      <th>27</th>
+      <td>2010</td>
+      <td>M</td>
+      <td>Noah</td>
+      <td>163657</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<p>For the most part, this list is not too surprising based on our lists of overall popularity by gender. It is interesting to see that some variation starts appearing in the more recent decades and especially since 2000.</p>
+<h3 id="most-consistent-highly-ranked-names">Most Consistent Highly Ranked Names<a class="anchor" href="#most-consistent-highly-ranked-names">#</a></h3>
+<p>Next up, let&rsquo;s take a look at the names that are the most consisently popular over the years. There are a few different ways we could look at this&hellip;</p>
+<ul>
+<li>Most consistently in the top ten per year/decade</li>
+<li>Highest rank on average per year/decade</li>
+</ul>
+<p>For the sake of simplicity, let&rsquo;s start by looking at the highest ranking names on average for each year and then based on that we can decide next steps.</p>
+<pre><code class="language-python"># Calculate top 10 male names of all time based on average per year
+names[names[&quot;gender&quot;]==&quot;M&quot;].groupby(['name', 'gender']).agg({'year_count': 'mean'})\
+    .astype(int).sort_values(&quot;year_count&quot;, ascending=False).reset_index().head(11).shift()[1:]
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+<pre><code>.dataframe tbody tr th {
+    vertical-align: top;
+}
+
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
+<p></style></p>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>name</th>
+      <th>gender</th>
+      <th>year_count</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1</th>
+      <td>James</td>
+      <td>M</td>
+      <td>37153.0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>John</td>
+      <td>M</td>
+      <td>36869.0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>Robert</td>
+      <td>M</td>
+      <td>34677.0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>Michael</td>
+      <td>M</td>
+      <td>31386.0</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>William</td>
+      <td>M</td>
+      <td>29621.0</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>David</td>
+      <td>M</td>
+      <td>26052.0</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>Joseph</td>
+      <td>M</td>
+      <td>18800.0</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>Richard</td>
+      <td>M</td>
+      <td>18455.0</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>Charles</td>
+      <td>M</td>
+      <td>17214.0</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>Thomas</td>
+      <td>M</td>
+      <td>16632.0</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<pre><code class="language-python"># Calculate top 10 male names of all time based on average per decade
+decade_names[decade_names[&quot;gender&quot;]==&quot;M&quot;].groupby(['name', 'gender']).agg({'decade_count': 'mean'})\
+    .astype(int).sort_values(&quot;decade_count&quot;, ascending=False).reset_index().head(11).shift()[1:]
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+<pre><code>.dataframe tbody tr th {
+    vertical-align: top;
+}
+
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
+<p></style></p>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>name</th>
+      <th>gender</th>
+      <th>decade_count</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1</th>
+      <td>James</td>
+      <td>M</td>
+      <td>368877.0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>John</td>
+      <td>M</td>
+      <td>366058.0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>Robert</td>
+      <td>M</td>
+      <td>344294.0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>Michael</td>
+      <td>M</td>
+      <td>311623.0</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>William</td>
+      <td>M</td>
+      <td>294097.0</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>David</td>
+      <td>M</td>
+      <td>258665.0</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>Joseph</td>
+      <td>M</td>
+      <td>186664.0</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>Richard</td>
+      <td>M</td>
+      <td>183235.0</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>Charles</td>
+      <td>M</td>
+      <td>170912.0</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>Thomas</td>
+      <td>M</td>
+      <td>165132.0</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<pre><code class="language-python"># Calculate top 10 female names of all time based on average per year
+names[names[&quot;gender&quot;]==&quot;F&quot;].groupby(['name', 'gender']).agg({'year_count': 'mean'})\
+    .astype(int).sort_values(&quot;year_count&quot;, ascending=False).reset_index().head(11).shift()[1:]
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+<pre><code>.dataframe tbody tr th {
+    vertical-align: top;
+}
+
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
+<p></style></p>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>name</th>
+      <th>gender</th>
+      <th>year_count</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1</th>
+      <td>Mary</td>
+      <td>F</td>
+      <td>29681.0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>Jennifer</td>
+      <td>F</td>
+      <td>14526.0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>Elizabeth</td>
+      <td>F</td>
+      <td>11786.0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>Patricia</td>
+      <td>F</td>
+      <td>11644.0</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>Ashley</td>
+      <td>F</td>
+      <td>10576.0</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>Linda</td>
+      <td>F</td>
+      <td>10450.0</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>Barbara</td>
+      <td>F</td>
+      <td>10319.0</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>Kimberly</td>
+      <td>F</td>
+      <td>9730.0</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>Madison</td>
+      <td>F</td>
+      <td>9519.0</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>Margaret</td>
+      <td>F</td>
+      <td>8985.0</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<pre><code class="language-python"># Calculate top 10 female names of all time based on average per decade
+decade_names[decade_names[&quot;gender&quot;]==&quot;F&quot;].groupby(['name', 'gender']).agg({'decade_count': 'mean'})\
+    .astype(int).sort_values(&quot;decade_count&quot;, ascending=False).reset_index().head(11).shift()[1:]
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+<pre><code>.dataframe tbody tr th {
+    vertical-align: top;
+}
+
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
+<p></style></p>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>name</th>
+      <th>gender</th>
+      <th>decade_count</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1</th>
+      <td>Mary</td>
+      <td>F</td>
+      <td>294691.0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>Jennifer</td>
+      <td>F</td>
+      <td>133382.0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>Elizabeth</td>
+      <td>F</td>
+      <td>117024.0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>Patricia</td>
+      <td>F</td>
+      <td>112286.0</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>Linda</td>
+      <td>F</td>
+      <td>103762.0</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>Barbara</td>
+      <td>F</td>
+      <td>102456.0</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>Kimberly</td>
+      <td>F</td>
+      <td>92985.0</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>Margaret</td>
+      <td>F</td>
+      <td>89213.0</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>Ashley</td>
+      <td>F</td>
+      <td>84612.0</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>Susan</td>
+      <td>F</td>
+      <td>80121.0</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<h4 id="results-name-popularity-over-time">Results Name Popularity Over Time</h4>
+<p>Let&rsquo;s take a look at the results for name popularity over time. It&rsquo;s a bit easier to see it when it&rsquo;s all in one place.</p>
+<p>For male names, there is literally no difference in the lists when comparing overall popularity (i.e, total count) with highest average counts per year and decade.</p>
+<p>For female names, there is a bit more variation, but overall the lists are pretty consistent. When it comes to the masses, I guess we aren&rsquo;t very creative with our name choices.</p>
+<table>
+<thead>
+<tr>
+<th>MALE</th>
+<th align="center">#</th>
+<th align="left">Overall</th>
+<th align="left">Avg by Year</th>
+<th align="left">Avg by Dec</th>
+<th>FEMALE</th>
+<th align="center">#</th>
+<th align="left">Overall</th>
+<th align="left">Avg by Year</th>
+<th align="left">Avg by Dec</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td align="center">1</td>
+<td align="left">James</td>
+<td align="left">James</td>
+<td align="left">James</td>
+<td></td>
+<td align="center">1</td>
+<td align="left">Mary</td>
+<td align="left">Mary</td>
+<td align="left">Mary</td>
+</tr>
+<tr>
+<td></td>
+<td align="center">2</td>
+<td align="left">John</td>
+<td align="left">John</td>
+<td align="left">John</td>
+<td></td>
+<td align="center">2</td>
+<td align="left">Elizabeth</td>
+<td align="left">Jennifer</td>
+<td align="left">Jennifer</td>
+</tr>
+<tr>
+<td></td>
+<td align="center">3</td>
+<td align="left">Robert</td>
+<td align="left">Robert</td>
+<td align="left">Robert</td>
+<td></td>
+<td align="center">3</td>
+<td align="left">Patricia</td>
+<td align="left">Elizabeth</td>
+<td align="left">Elizabeth</td>
+</tr>
+<tr>
+<td></td>
+<td align="center">4</td>
+<td align="left">Michael</td>
+<td align="left">Michael</td>
+<td align="left">Michael</td>
+<td></td>
+<td align="center">4</td>
+<td align="left">Jennifer</td>
+<td align="left">Patricia</td>
+<td align="left">Patricia</td>
+</tr>
+<tr>
+<td></td>
+<td align="center">5</td>
+<td align="left">William</td>
+<td align="left">William</td>
+<td align="left">William</td>
+<td></td>
+<td align="center">5</td>
+<td align="left">Linda</td>
+<td align="left">Ashley</td>
+<td align="left">Linda</td>
+</tr>
+<tr>
+<td></td>
+<td align="center">6</td>
+<td align="left">David</td>
+<td align="left">David</td>
+<td align="left">David</td>
+<td></td>
+<td align="center">6</td>
+<td align="left">Barbara</td>
+<td align="left">Linda</td>
+<td align="left">Barbara</td>
+</tr>
+<tr>
+<td></td>
+<td align="center">7</td>
+<td align="left">Joseph</td>
+<td align="left">Joseph</td>
+<td align="left">Joseph</td>
+<td></td>
+<td align="center">7</td>
+<td align="left">Margaret</td>
+<td align="left">Barbara</td>
+<td align="left">Kimberly</td>
+</tr>
+<tr>
+<td></td>
+<td align="center">8</td>
+<td align="left">Richard</td>
+<td align="left">Richard</td>
+<td align="left">Richard</td>
+<td></td>
+<td align="center">8</td>
+<td align="left">Susan</td>
+<td align="left">Kimberly</td>
+<td align="left">Margaret</td>
+</tr>
+<tr>
+<td></td>
+<td align="center">9</td>
+<td align="left">Charles</td>
+<td align="left">Charles</td>
+<td align="left">Charles</td>
+<td></td>
+<td align="center">9</td>
+<td align="left">Dorothy</td>
+<td align="left">Madison</td>
+<td align="left">Ashley</td>
+</tr>
+<tr>
+<td></td>
+<td align="center">10</td>
+<td align="left">Thomas</td>
+<td align="left">Thomas</td>
+<td align="left">Thomas</td>
+<td></td>
+<td align="center">10</td>
+<td align="left">Sarah</td>
+<td align="left">Margaret</td>
+<td align="left">Susan</td>
+</tr>
+</tbody>
+</table>
+<h3 id="most-popular-first-initial-overall">Most Popular First Initial, Overall<a class="anchor" href="#most-popular-first-initial-overall">#</a></h3>
+<p>Finally, let&rsquo;s go back to our original dataframe and see if we can figure out the most popular first initial by gender and also combined.</p>
+<pre><code class="language-python"># Create a simple function to get the first letter of each name
+def getFirstLetter(string):
+    &quot;&quot;&quot;Function to return first letter of a string
+    &quot;&quot;&quot;
+    return string[0]
+
+# Apply function to dataframe to get first letter for each name
+names[&quot;letter&quot;] = names.name.apply(getFirstLetter)
+names.head()
+</code></pre>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+<pre><code>.dataframe tbody tr th {
+    vertical-align: top;
+}
+
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
+<p></style></p>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>name</th>
+      <th>gender</th>
+      <th>year_count</th>
+      <th>year</th>
+      <th>decade</th>
+      <th>letter</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>Mary</td>
+      <td>F</td>
+      <td>7065</td>
+      <td>1880</td>
+      <td>1880</td>
+      <td>M</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>Anna</td>
+      <td>F</td>
+      <td>2604</td>
+      <td>1880</td>
+      <td>1880</td>
+      <td>A</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>Emma</td>
+      <td>F</td>
+      <td>2003</td>
+      <td>1880</td>
+      <td>1880</td>
+      <td>E</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>Elizabeth</td>
+      <td>F</td>
+      <td>1939</td>
+      <td>1880</td>
+      <td>1880</td>
+      <td>E</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>Minnie</td>
+      <td>F</td>
+      <td>1746</td>
+      <td>1880</td>
+      <td>1880</td>
+      <td>M</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<pre><code class="language-python"># x values are the unique letters
+x_values = names['letter'].unique().tolist()
+x_values.sort()
+
+# y values are the sum of the count for each letter
+y_values = round((names.groupby(['letter']).year_count.sum() / 1000000), 2).to_list()
+
+# Create remaining variables for plot
+plot_type = 'vbar'
+title = &quot;First Initial Popularity Overall, 1880-2018&quot;
+x_label = &quot;Letter&quot;
+y_label = &quot;Count (millions)&quot;
+colors = [&quot;gray&quot;]
+filename = './figures/first_initial_pop_bar.png'
+x_range = x_values
+y_range = (0, 50)
+
+# Create plot using function
+createVBarPlot(plot_type, title, x_values, [y_values], x_label, y_label,
+           colors, filename, x_range, y_range)
+</code></pre>
+<p><img src="../figures/first_initial_pop_bar.png"
+alt="Bar plot showing unique names per year over time, 1880-2018"/></p>
+
+
+              
+          </article>
+          
+
+<ul class="tags__list">
+    
+    <li class="tag__item">
+        <a class="tag__link" href="https://stevenrhart.github.io/tags/pandas/">pandas</a>
+    </li>
+    <li class="tag__item">
+        <a class="tag__link" href="https://stevenrhart.github.io/tags/bokeh/">bokeh</a>
+    </li></ul>
+
+ <div class="pagination">
+  
+
+  
+</div>
+
+          
+          <footer class="post__footer">
+            
+
+
+<div class="social-icons">
+  
+     
+    
+  
+     
+    
+      <a class="social-icons__icon" title="GitHub"
+         style="background-image: url(/images/social/github.svg)" 
+         href="https://github.com/stevenrhart"
+         target="_blank" rel="noopener">
+      </a>
+    
+  
+     
+    
+      <a class="social-icons__icon" title="Email"
+         style="background-image: url(/images/social/email.svg)" 
+         href="mailto:stevenrhart@gmail.com"
+         target="_blank" rel="noopener">
+      </a>
+    
+  
+     
+    
+  
+     
+    
+  
+     
+    
+  
+     
+    
+      <a class="social-icons__icon" title="LinkedIn"
+         style="background-image: url(/images/social/linkedin.svg)" 
+         href="https://www.linkedin.com/in/stevenrhart1/"
+         target="_blank" rel="noopener">
+      </a>
+    
+  
+     
+    
+     
+</div>
+
+            <p>© 2020 Steve Hart</p>
+          </footer>
+          </div>
+      </div>
+      
+    </div>
+    
+
+  </main>
+
+   
+
+  
+  <script src="/js/index.min.49e4d8a384357d9b445b87371863419937ede9fa77737522ffb633073aebfa44.js" integrity="sha256-SeTYo4Q1fZtEW4c3GGNBmTft6fp3c3Ui/7YzBzrr&#43;kQ=" crossorigin="anonymous"></script>
+  
+  
+  <script src="https://unpkg.com/prismjs@1.20.0/components/prism-core.min.js"></script>
+
+  
+  <script src="https://unpkg.com/prismjs@1.20.0/plugins/autoloader/prism-autoloader.min.js"
+    data-autoloader-path="https://unpkg.com/prismjs@1.20.0/components/"></script>
+
+  
+
+
+</body>
+
+</html>
